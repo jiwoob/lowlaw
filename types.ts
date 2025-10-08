@@ -13,6 +13,7 @@ export interface Bill {
   PROPOSER: string;
   LINK_URL: string;
   BILL_KIND: string;
+  ANNOUNCE_DT?: string;
   [key: string]: any; 
 }
 

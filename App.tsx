@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ApiMode, Bill, SummaryStatus } from './types';
-import { fetchAllPassedBills, fetchBillSummaryText, fetchRecentPassedBillDates } from './services/api';
+import { fetchAllPassedBills, fetchBillSummaryText, fetchRecentPassedBillDates, fetchBillProclamationDate } from './services/api';
 import { summarizeText } from './services/ai';
 import { downloadBillsAsCSV } from './utils/csv';
 import { DownloadIcon, ExternalLinkIcon, SparklesIcon } from './components/Icons';
@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [summaryErrors, setSummaryErrors] = useState<Record<string, string>>({});
   const [aiSummaries, setAiSummaries] = useState<Record<string, string>>({});
   const [aiSummaryStatus, setAiSummaryStatus] = useState<Record<string, SummaryStatus>>({});
+  const [proclamationDates, setProclamationDates] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
     const loadAvailableDates = async () => {
@@ -66,6 +67,7 @@ const App: React.FC = () => {
     setSummaryErrors({});
     setAiSummaries({});
     setAiSummaryStatus({});
+    setProclamationDates({});
 
     try {
       const fetchedBills = await fetchAllPassedBills(date, MODE, { apiKey: API_KEY, proxyUrl: PROXY_URL });
@@ -110,7 +112,23 @@ const App: React.FC = () => {
       }
     };
 
+    const fetchProclamationDates = async () => {
+      for (const bill of bills) {
+        const key = bill.BILL_ID || bill.BILL_NO;
+        if (!bill.BILL_NO) continue;
+
+        try {
+          const date = await fetchBillProclamationDate(bill, MODE, { apiKey: API_KEY, proxyUrl: PROXY_URL });
+          setProclamationDates(prev => ({ ...prev, [key]: date }));
+        } catch (e) {
+          console.warn(`Could not fetch proclamation date for bill ${key}:`, e);
+          setProclamationDates(prev => ({ ...prev, [key]: null }));
+        }
+      }
+    };
+
     fetchSummaries();
+    fetchProclamationDates();
   }, [bills]);
   
   const handleGenerateAiSummary = useCallback(async (bill: Bill) => {
@@ -293,7 +311,7 @@ const App: React.FC = () => {
               <h2 className="text-lg font-semibold">
                 {selectedDate && bills.length > 0 ? (
                   <>
-                    {selectedDate} — 가결 포함 의안 <span className="text-slate-500">{bills.length}건</span>
+                    {selectedDate} — 가결 의안 <span className="text-slate-500">{bills.length}건</span>
                   </>
                 ) : (
                   '가결 의안'
@@ -342,6 +360,9 @@ const App: React.FC = () => {
                         {bill.PROC_RESULT_CD && (
                           <span className="rounded-full bg-emerald-50 text-emerald-700 px-2 py-1">본회의: {bill.PROC_RESULT_CD}</span>
                         )}
+                        {proclamationDates[key] && (
+                           <span className="rounded-full bg-sky-50 text-sky-700 px-2 py-1">공포일: {proclamationDates[key]}</span>
+                        )}
                         {bill.COMMITTEE && (
                           <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-1">소관위: {bill.COMMITTEE}</span>
                         )}
@@ -351,13 +372,10 @@ const App: React.FC = () => {
                         {bill.BILL_NO && (
                           <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-1">BILL_NO {bill.BILL_NO}</span>
                         )}
-                        {bill.BILL_ID && (
-                          <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-1">ID {bill.BILL_ID}</span>
-                        )}
                       </div>
 
                       <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                        <h4 className="text-[11px] font-semibold tracking-wide text-slate-700">한 줄 핵심</h4>
+                        <h4 className="text-[11px] font-semibold tracking-wide text-slate-700">주요 내용</h4>
                         <div className="mt-1 text-sm text-slate-700 leading-relaxed">
                           {renderSummary(bill)}
                         </div>

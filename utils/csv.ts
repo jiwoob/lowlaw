@@ -13,7 +13,7 @@ function escapeCsvCell(value: any): string {
 export function downloadBillsAsCSV(bills: Bill[], date: string): void {
   if (!bills || bills.length === 0) return;
 
-  const headers = ['BILL_KIND', 'BILL_NAME', 'PROC_RESULT_CD', 'PROC_DT', 'BILL_ID', 'COMMITTEE', 'PROPOSER', 'LINK_URL'];
+  const headers = ['BILL_KIND', 'BILL_NAME', 'PROC_RESULT_CD', 'PROC_DT', 'COMMITTEE', 'PROPOSER', 'LINK_URL'];
   
   const csvHeader = headers.join(',');
   
