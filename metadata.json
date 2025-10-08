@@ -1,0 +1,5 @@
+{
+  "name": "lowlaw - Korean National Assembly Bill Viewer",
+  "description": "An application to search and view legislative bills passed by the South Korean National Assembly, with simplified summaries.",
+  "requestFramePermissions": []
+}
