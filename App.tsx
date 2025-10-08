@@ -9,7 +9,7 @@ import Spinner from './components/Spinner';
 // Hardcoded settings to hide configuration from the user
 const API_KEY = '9a531d7e2ab74b81b7bd2043272da4cd';
 const MODE: ApiMode = ApiMode.PROXY;
-const PROXY_URL = 'https://corsproxy.io/';
+const PROXY_URL = 'https://api.allorigins.win/raw?url=';
 
 const App: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);

@@ -13,8 +13,8 @@ interface ApiOptions {
 function buildRelayUrl(mode: ApiMode, targetUrl: string, proxyUrl: string) {
   if (mode === ApiMode.DIRECT) return targetUrl;
   if (!proxyUrl) throw new Error('Proxy URL is required.');
-  // Format for corsproxy.io: https://corsproxy.io/?<encoded_target_url>
-  return `${proxyUrl}?${encodeURIComponent(targetUrl)}`;
+  // Format for allorigins.win: https://api.allorigins.win/raw?url=<encoded_target_url>
+  return `${proxyUrl}${encodeURIComponent(targetUrl)}`;
 }
 
 async function getJson(url: string) {
